@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace testDotNetCOre
 {
@@ -22,8 +23,28 @@ namespace testDotNetCOre
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app,
                               IHostingEnvironment env,
-                              IGreeter greeter)
+                              IGreeter greeter,
+                              ILogger<Startup> logger)
         {
+            //Middlewares
+            app.Use(next => {
+                return async context =>{
+                    logger.LogInformation("Request Incoming");
+                    if (context.Request.Path.StartsWithSegments("/mymiddle")){
+                        await context.Response.WriteAsync("Hit!");
+                        logger.LogInformation("Request Handled");
+                    }
+                    else{
+                        await next(context);
+                        logger.LogInformation("Request Outgoing");
+                    }
+                };
+            });
+
+            app.UseWelcomePage(new WelcomePageOptions{
+               Path = "/welcome" 
+            });
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
