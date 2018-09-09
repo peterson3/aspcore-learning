@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Configuration;
+
 namespace testDotNetCOre
 {
     public interface IGreeter
@@ -7,9 +9,14 @@ namespace testDotNetCOre
 
     public class Greeter : IGreeter
     {
+        private IConfiguration _configuration;
+
+        public Greeter(IConfiguration configuraton){
+            _configuration = configuraton;
+        }
         public string GetMessageOfTheDay()
         {
-            return "Olá! Bom Domingo!";
+            return _configuration["Greeting"];
         }
     }
 }
